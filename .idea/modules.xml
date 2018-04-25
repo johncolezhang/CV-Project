@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/pixel-recursive-super-resolution.iml" filepath="$PROJECT_DIR$/.idea/pixel-recursive-super-resolution.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/CV-Project.iml" filepath="$PROJECT_DIR$/.idea/CV-Project.iml" />
     </modules>
   </component>
 </project>
