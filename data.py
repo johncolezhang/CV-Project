@@ -9,11 +9,14 @@ class DataSet(object):
     # filling the record_list
     input_file = open(images_list_path, 'r')
     self.record_list = []
+    # add all image path to record_list
     for line in input_file:
       line = line.strip()
       self.record_list.append(line)
+    # return tuple of filename queue
     filename_queue = tf.train.string_input_producer(self.record_list, num_epochs=num_epoch)
     image_reader = tf.WholeFileReader()
+    # read all image files
     _, image_file = image_reader.read(filename_queue)
     image = tf.image.decode_jpeg(image_file, 3)
     #preprocess

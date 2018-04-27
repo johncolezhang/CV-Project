@@ -16,6 +16,8 @@ class Net(object):
     with tf.variable_scope(scope) as scope:
       self.train = tf.placeholder(tf.bool)
       self.construct_net(hr_images, lr_images)
+
+  # pixel CNN, get prior distribution of image by high resolution image
   def prior_network(self, hr_images):
     """
     Args:[-0.5, 0.5]
@@ -23,6 +25,7 @@ class Net(object):
     Returns:
       prior_logits: [batch_size, hr_height, hr_width, 3*256]
     """
+    # 2 convolutions
     with tf.variable_scope('prior') as scope:
       conv1 = conv2d(hr_images, 64, [7, 7], strides=[1, 1], mask_type='A', scope="conv1")
       inputs = conv1
@@ -37,14 +40,16 @@ class Net(object):
 
       return prior_logits
 
-
+  # make the prediction based on previous stochastic predictions
   def conditioning_network(self, lr_images):
     """
+    lr_iamges: [8, 8]
     Args:[-0.5, 0.5]
       lr_images: [batch_size, lr_height, lr_width, in_channels]
     Returns:
       conditioning_logits: [batch_size, hr_height, hr_width, 3*256]
     """
+    # use residual to calculate convolution layer
     res_num = 6
     with tf.variable_scope('conditioning') as scope:
       inputs = lr_images
@@ -52,10 +57,15 @@ class Net(object):
       for i in range(2):
         for j in range(res_num):
           inputs = resnet_block(inputs, 32, [3, 3], strides=[1, 1], scope='res' + str(i) + str(j), train=self.train)
+        # n * n => 2n * 2n, set strides = 2, 2n * 2n convolution = n * n
         inputs = deconv2d(inputs, 32, [3, 3], strides=[2, 2], scope="deconv" + str(i))
         inputs = tf.nn.relu(inputs)
       for i in range(res_num):
         inputs = resnet_block(inputs, 32, [3, 3], strides=[1, 1], scope='res3' + str(i), train=self.train)
+      """
+      The last layer uses a 1×1 convolution to increase the number of channels,
+      to predict a multinomial distribution over 256 possible color channel values for each sub-pixel.
+      """
       conditioning_logits = conv2d(inputs, 3*256, [1, 1], strides=[1, 1], mask_type=None, scope="conv")
 
       return conditioning_logits
@@ -81,7 +91,7 @@ class Net(object):
     loss1 = self.softmax_loss(self.prior_logits + self.conditioning_logits, labels)
     loss2 = self.softmax_loss(self.conditioning_logits, labels)
     loss3 = self.softmax_loss(self.prior_logits, labels)
-
+    # additive residual
     self.loss = loss1 + loss2
     tf.summary.scalar('loss', self.loss)
     tf.summary.scalar('loss_prior', loss3)

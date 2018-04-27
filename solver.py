@@ -29,7 +29,7 @@ class Solver(object):
     #optimizer parameter
     self.learning_rate = conf.learning_rate
     if conf.use_gpu:
-      device_str = '/gpu:' +  str(self.device_id)
+      device_str = '/gpu:' + str(self.device_id)
     else:
       device_str = '/cpu:0'
     with tf.device(device_str):
@@ -38,6 +38,7 @@ class Solver(object):
       self.net = Net(self.dataset.hr_images, self.dataset.lr_images, 'prsr')
       #optimizer
       self.global_step = tf.get_variable('global_step', [], initializer=tf.constant_initializer(0), trainable=False)
+      # decay every 500000 steps with a base of 0.5
       learning_rate = tf.train.exponential_decay(self.learning_rate, self.global_step,
                                            500000, 0.5, staircase=True)
       optimizer = tf.train.RMSPropOptimizer(learning_rate, decay=0.95, momentum=0.9, epsilon=1e-8)
@@ -101,7 +102,7 @@ class Solver(object):
     gen_hr_imgs = np.zeros((self.batch_size, 32, 32, 3), dtype=np.float32)
     #gen_hr_imgs = np_hr_imgs
     #gen_hr_imgs[:,16:,16:,:] = 0.0
-    np_c_logits = sess.run(c_logits, feed_dict={lr_imgs: np_lr_imgs, self.net.train:False})
+    np_c_logits = sess.run(c_logits, feed_dict={lr_imgs: np_lr_imgs, self. .train:False})
     print('iters %d: ' % step)
     
     for i in range(32):
