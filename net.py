@@ -76,6 +76,7 @@ class Net(object):
     labels = tf.reshape(labels, [-1])
     return tf.losses.sparse_softmax_cross_entropy(
            labels, logits)
+
   def construct_net(self, hr_images, lr_images):
     """
     Args: [0, 255]

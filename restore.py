@@ -1,9 +1,11 @@
 import tensorflow as tf
 from utils import *
 
-if __name__ == "__main__":
-    with tf.Session() as sess:
-        # saver = tf.train.import_meta_graph('models/model.ckpt-10000.meta')
+
+def readfile():
+    with tf.Session() as sess1:
+        # saver = tf.train.import_meta_graph('models/model.ckpt-30000.meta')
+        # saver.restore(sess, tf.train.latest_checkpoint('models/model.ckpt-30000'))
         batch_size = 32
         image_path = "data/000063.jpg"
         filename_queue = tf.train.string_input_producer([image_path])
@@ -20,19 +22,12 @@ if __name__ == "__main__":
                                                       batch_size=batch_size, capacity=capacity,
                                                       min_after_dequeue=min_after_dequeue)
         init = tf.global_variables_initializer()
-        sess.run(init)
-        coord = tf.train.Coordinator()
-        threads = tf.train.start_queue_runners(coord=coord)
-        hr_images = hr_images.eval()
-        lr_images = lr_images.eval()
+        sess1.run(init)
+        coord1 = tf.train.Coordinator()
+        threads1 = tf.train.start_queue_runners(coord=coord1)
+        np_hr_images = hr_images.eval()
+        np_lr_images = lr_images.eval()
+    return hr_images, lr_images, np_hr_images, np_lr_images
 
-        save_samples(hr_images, '/Users/johncole/Desktop/hr.jpg')
-        save_samples(lr_images, '/Users/johncole/Desktop/lr.jpg')
-    # with tf.Session() as sess:
-    #     saver = tf.train.import_meta_graph('models/model.ckpt-10000.meta')
-        # saver.restore(sess, tf.train.latest_checkpoint('model'))
-        # tvs = [v for v in tf.trainable_variables()]
-        # for v in tvs:
-        #     print(v.name)
-        #     print(sess.run(v))
-
+    # save_samples(hr_images, '/Users/johncole/Desktop/hr.jpg')
+    # save_samples(lr_images, '/Users/johncole/Desktop/lr.jpg')
